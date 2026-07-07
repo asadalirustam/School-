@@ -12,7 +12,7 @@ const { protect } = require('../middlewares/authMiddleware');
 const { authorize } = require('../middlewares/roleMiddleware');
 
 router.post('/login', login);
-router.post('/register', protect, authorize('Principal'), register);
+router.post('/register', register);
 router.get('/profile', protect, getProfile);
 router.put('/change-password', protect, changePassword);
 router.get('/users', protect, authorize('Principal'), getUsers);

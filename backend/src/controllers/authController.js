@@ -56,13 +56,32 @@ const login = async (req, res, next) => {
   }
 };
 
-// @desc    Register a new user (Only Principal can register other users)
+// @desc    Register a new user (Anyone can register a Principal; Principal registers Accountant & Examination Incharge)
 // @route   POST /api/auth/register
-// @access  Private (Principal)
+// @access  Public (Principal) / Private (Accountant/Incharge)
 const register = async (req, res, next) => {
   const { name, email, password, role } = req.body;
 
   try {
+    // Dynamic access control: Non-Principal roles require a logged-in Principal
+    if (role !== 'Principal') {
+      let token;
+      if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        try {
+          token = req.headers.authorization.split(' ')[1];
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+          const requestor = await User.findById(decoded.id);
+          if (!requestor || requestor.role !== 'Principal' || requestor.status === 'Inactive') {
+            return res.status(403).json({ success: false, message: 'Only active Principals can register staff accounts' });
+          }
+        } catch (error) {
+          return res.status(401).json({ success: false, message: 'Authentication token is invalid or expired' });
+        }
+      } else {
+        return res.status(401).json({ success: false, message: 'Principal authorization token is required to create staff accounts' });
+      }
+    }
+
     // Check if user exists
     const userExists = await User.findOne({ email });
 
