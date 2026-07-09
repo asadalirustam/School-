@@ -251,7 +251,7 @@ const SalaryManagement = () => {
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {employeeType === 'Teacher' ? (
               <div>
                 <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Select Teacher *</label>
@@ -297,7 +297,7 @@ const SalaryManagement = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 bg-slate-50 dark:bg-slate-950/45 p-4 border border-slate-200 dark:border-slate-850 rounded-xl">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 dark:bg-slate-950/45 p-4 border border-slate-200 dark:border-slate-850 rounded-xl">
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Base Salary ($) *</label>
               <input
@@ -332,7 +332,7 @@ const SalaryManagement = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Payment Method *</label>
               <select

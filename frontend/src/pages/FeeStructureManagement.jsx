@@ -42,6 +42,16 @@ const FeeStructureManagement = () => {
         { _id: 's1', category: 'Tuition Fee', amount: 200, class: { name: 'Grade 10' }, academicSession: { name: '2026-2027' } },
         { _id: 's2', category: 'Library Fee', amount: 30, class: null, academicSession: { name: '2026-2027' } }
       ]);
+      // Fallback simulated configurations for offline mode
+      setClasses([
+        { _id: 'c10', name: 'Grade 10' },
+        { _id: 'c9', name: 'Grade 9' },
+        { _id: 'c8', name: 'Grade 8' }
+      ]);
+      setSessions([
+        { _id: 'sess-active', name: '2026-2027', isActive: true }
+      ]);
+      setFormData((prev) => ({ ...prev, academicSession: 'sess-active' }));
     }
   };
 
@@ -223,7 +233,7 @@ const FeeStructureManagement = () => {
       {/* ADD MODAL */}
       <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Create Billing Structure">
         <form onSubmit={handleAddSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Billing Category *</label>
               <select
@@ -254,7 +264,7 @@ const FeeStructureManagement = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Grade Class Assignment</label>
               <select
@@ -298,7 +308,7 @@ const FeeStructureManagement = () => {
       {/* EDIT MODAL */}
       <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} title="Edit Billing Structure">
         <form onSubmit={handleEditSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Billing Category *</label>
               <select
@@ -328,7 +338,7 @@ const FeeStructureManagement = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Grade Class Assignment</label>
               <select
