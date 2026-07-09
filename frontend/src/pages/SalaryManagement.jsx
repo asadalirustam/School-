@@ -82,7 +82,6 @@ const SalaryManagement = () => {
         showNotification('Salary disbursed successfully', 'success');
         setIsPayOpen(false);
         fetchData();
-        downloadSalarySlipPDF(res.data.salary);
       }
     } catch (err) {
       showNotification('Simulated salary disbursement (Demo mode)', 'success');
@@ -107,7 +106,6 @@ const SalaryManagement = () => {
       };
 
       setSalariesList((prev) => [mockSalary, ...prev]);
-      downloadSalarySlipPDF(mockSalary);
     }
   };
 

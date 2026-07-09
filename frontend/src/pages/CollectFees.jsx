@@ -140,7 +140,6 @@ const CollectFees = () => {
         showNotification('Fee collected successfully', 'success');
         setIsCollectOpen(false);
         loadStudentLedger(selectedStudent);
-        downloadReceiptPDF(res.data.payment);
       }
     } catch (err) {
       showNotification('Simulated fee collection (Demo mode)', 'success');
@@ -171,8 +170,6 @@ const CollectFees = () => {
           pendingFee: Math.max(0, prev.pendingFee - cleared)
         };
       });
-
-      downloadReceiptPDF(mockPayment);
     }
   };
 
