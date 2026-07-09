@@ -265,7 +265,7 @@ const ResultManagement = () => {
       </div>
 
       {/* Select Exam & Class */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
         <div>
           <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Select Exam</label>
           <select

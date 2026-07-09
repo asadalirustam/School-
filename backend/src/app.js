@@ -33,6 +33,7 @@ app.use('/api/results', require('./routes/resultRoutes'));
 app.use('/api/fees', require('./routes/feeRoutes'));
 app.use('/api/expenses', require('./routes/expenseRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 
 // Root route
 app.get('/', (req, res) => {

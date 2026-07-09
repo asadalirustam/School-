@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../services/api';
 import { useNotification } from '../context/NotificationContext';
-import { FileBarChart2, Download, Printer, Filter } from 'lucide-react';
+import { FileBarChart2, Download, Printer, Filter, RefreshCw } from 'lucide-react';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 
@@ -27,12 +27,17 @@ const Reports = () => {
     fetchClasses();
   }, []);
 
+  // Autoload report data whenever the report type or selected class changes
+  useEffect(() => {
+    generateReport();
+  }, [reportType, selectedClass]);
+
   const generateReport = async () => {
     setLoading(true);
     try {
       if (reportType === 'Students') {
         const res = await API.get('/students', {
-          params: { classId: selectedClass, limit: 200 }
+          params: { classId: selectedClass, limit: 1000 }
         });
         setReportData(res.data.students || []);
       } else if (reportType === 'Teachers') {
@@ -168,10 +173,10 @@ const Reports = () => {
         <div className="flex space-x-3 w-full md:w-auto">
           <button
             onClick={generateReport}
-            className="bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs py-2.5 px-6 rounded-xl transition-all shadow-md flex items-center justify-center space-x-2"
+            className="bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs py-2.5 px-6 rounded-xl transition-all shadow-md flex items-center justify-center space-x-2 w-full md:w-auto"
           >
-            <Filter className="w-4 h-4 shrink-0" />
-            <span>Apply Query</span>
+            <RefreshCw className="w-4 h-4 shrink-0 animate-hover" />
+            <span>Refresh Roster</span>
           </button>
         </div>
       </div>

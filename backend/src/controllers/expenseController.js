@@ -139,6 +139,40 @@ const getSalaries = async (req, res, next) => {
   }
 };
 
+// Helper function to compute financial summary data using aggregation
+const getFinancialSummaryData = async (start, end) => {
+  const feeSummary = await FeePayment.aggregate([
+    { $match: { paidDate: { $gte: start, $lte: end } } },
+    { $group: { _id: null, totalRevenue: { $sum: '$amountPaid' }, totalFinesCollected: { $sum: '$fine' } } }
+  ]);
+  const totalRevenue = feeSummary[0]?.totalRevenue || 0;
+  const totalFinesCollected = feeSummary[0]?.totalFinesCollected || 0;
+
+  const expenseSummary = await Expense.aggregate([
+    { $match: { date: { $gte: start, $lte: end } } },
+    { $group: { _id: null, totalExpenses: { $sum: '$amount' } } }
+  ]);
+  const totalExpenses = expenseSummary[0]?.totalExpenses || 0;
+
+  const salarySummary = await Salary.aggregate([
+    { $match: { paidDate: { $gte: start, $lte: end } } },
+    { $group: { _id: null, totalSalaries: { $sum: '$netSalary' } } }
+  ]);
+  const totalSalaries = salarySummary[0]?.totalSalaries || 0;
+
+  const totalOutflow = totalExpenses + totalSalaries;
+  const netProfit = totalRevenue - totalOutflow;
+
+  return {
+    totalRevenue,
+    totalFinesCollected,
+    totalExpenses,
+    totalSalaries,
+    totalOutflow,
+    netProfit
+  };
+};
+
 // @desc    Get high-level Financial Profit/Loss Summary
 // @route   GET /api/expenses/summary
 // @access  Private (Principal, Accountant)
@@ -150,32 +184,11 @@ const getFinancialSummary = async (req, res, next) => {
     const end = endDate ? new Date(endDate) : new Date();
     end.setHours(23, 59, 59, 999);
 
-    // Sum Fee Payments (Revenue)
-    const feePayments = await FeePayment.find({ paidDate: { $gte: start, $lte: end } });
-    const totalRevenue = feePayments.reduce((sum, p) => sum + p.amountPaid, 0);
-    const totalFinesCollected = feePayments.reduce((sum, p) => sum + p.fine, 0);
-
-    // Sum School Expenses
-    const expenses = await Expense.find({ date: { $gte: start, $lte: end } });
-    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-
-    // Sum Salary Payments
-    const salaries = await Salary.find({ paidDate: { $gte: start, $lte: end } });
-    const totalSalaries = salaries.reduce((sum, s) => sum + s.netSalary, 0);
-
-    const totalOutflow = totalExpenses + totalSalaries;
-    const netProfit = totalRevenue - totalOutflow;
+    const summary = await getFinancialSummaryData(start, end);
 
     res.status(200).json({
       success: true,
-      summary: {
-        totalRevenue,
-        totalFinesCollected,
-        totalExpenses,
-        totalSalaries,
-        totalOutflow,
-        netProfit
-      }
+      summary
     });
   } catch (error) {
     next(error);
@@ -189,5 +202,6 @@ module.exports = {
   deleteExpense,
   disburseSalary,
   getSalaries,
-  getFinancialSummary
+  getFinancialSummary,
+  getFinancialSummaryData
 };

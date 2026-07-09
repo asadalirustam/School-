@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import DashboardCard from '../components/common/DashboardCard';
 import { useNotification } from '../context/NotificationContext';
@@ -28,6 +29,7 @@ import {
 
 const PrincipalDashboard = () => {
   const { showNotification } = useNotification();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     students: 0,
     teachers: 0,
@@ -75,25 +77,10 @@ const PrincipalDashboard = () => {
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
-        const [studs, teachs, cls, subs, exms, fin] = await Promise.all([
-          API.get('/students?limit=1'),
-          API.get('/teachers'),
-          API.get('/classes'),
-          API.get('/subjects'),
-          API.get('/exams'),
-          API.get('/expenses/summary')
-        ]);
-
-        setStats({
-          students: studs.data.total || 0,
-          teachers: teachs.data.teachers?.length || 0,
-          classes: cls.data.classes?.length || 0,
-          subjects: subs.data.subjects?.length || 0,
-          exams: exms.data.exams?.length || 0,
-          revenue: fin.data.summary?.totalRevenue || 0,
-          pendingFee: 12500, // Static demo value since pending fee calculator parses all students
-          expenses: fin.data.summary?.totalOutflow || 0
-        });
+        const res = await API.get('/dashboard/principal');
+        if (res.data.success) {
+          setStats(res.data.stats);
+        }
       } catch (err) {
         console.warn('DB disconnected or offline. Using simulated Principal stats.');
         setStats({
@@ -162,14 +149,14 @@ const PrincipalDashboard = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <DashboardCard title="Total Students" value={stats.students} icon={GraduationCap} color="blue" />
-        <DashboardCard title="Total Teachers" value={stats.teachers} icon={Users} color="purple" />
-        <DashboardCard title="Classes & Sections" value={stats.classes} icon={Layers} color="indigo" />
-        <DashboardCard title="Total Subjects" value={stats.subjects} icon={BookOpen} color="indigo" />
-        <DashboardCard title="Total Exams" value={stats.exams} icon={Award} color="yellow" />
-        <DashboardCard title="Fee Collection" value={`$${stats.revenue.toLocaleString()}`} icon={DollarSign} color="green" />
-        <DashboardCard title="Pending Balance" value={`$${stats.pendingFee.toLocaleString()}`} icon={AlertTriangle} color="rose" />
-        <DashboardCard title="Total Expenditures" value={`$${stats.expenses.toLocaleString()}`} icon={TrendingUp} color="rose" />
+        <DashboardCard title="Total Students" value={stats.students} icon={GraduationCap} color="blue" onClick={() => navigate('/principal/students')} />
+        <DashboardCard title="Total Teachers" value={stats.teachers} icon={Users} color="purple" onClick={() => navigate('/principal/teachers')} />
+        <DashboardCard title="Classes & Sections" value={stats.classes} icon={Layers} color="indigo" onClick={() => navigate('/principal/classes')} />
+        <DashboardCard title="Total Subjects" value={stats.subjects} icon={BookOpen} color="indigo" onClick={() => navigate('/principal/subjects')} />
+        <DashboardCard title="Total Exams" value={stats.exams} icon={Award} color="yellow" onClick={() => navigate('/principal/reports')} />
+        <DashboardCard title="Fee Collection" value={`$${stats.revenue.toLocaleString()}`} icon={DollarSign} color="green" onClick={() => navigate('/principal/reports')} />
+        <DashboardCard title="Pending Balance" value={`$${stats.pendingFee.toLocaleString()}`} icon={AlertTriangle} color="rose" onClick={() => navigate('/principal/reports')} />
+        <DashboardCard title="Total Expenditures" value={`$${stats.expenses.toLocaleString()}`} icon={TrendingUp} color="rose" onClick={() => navigate('/principal/reports')} />
       </div>
 
       {/* Visual Analytics & notice broadboard */}

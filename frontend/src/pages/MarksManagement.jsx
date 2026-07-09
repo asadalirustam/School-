@@ -175,7 +175,7 @@ const MarksManagement = () => {
       </div>
 
       {/* Selector */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
         <div>
           <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Select Exam</label>
           <select
@@ -231,7 +231,7 @@ const MarksManagement = () => {
           </select>
         </div>
 
-        <div className="col-span-1 md:col-span-4 mt-2">
+        <div className="col-span-1 sm:col-span-2 lg:col-span-4 mt-2">
           <button
             onClick={loadStudentMarksRegister}
             className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs py-2.5 rounded-xl transition-all shadow-md flex items-center justify-center space-x-2"

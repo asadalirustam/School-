@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import DashboardCard from '../components/common/DashboardCard';
 import { DollarSign, Wallet, TrendingUp, AlertTriangle, Briefcase, FileSpreadsheet } from 'lucide-react';
@@ -15,6 +16,7 @@ import {
 } from 'recharts';
 
 const AccountantDashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalRevenue: 0,
     todayCollection: 0,
@@ -38,25 +40,10 @@ const AccountantDashboard = () => {
   useEffect(() => {
     const fetchFinanceStats = async () => {
       try {
-        const [sumRes, payRes] = await Promise.all([
-          API.get('/expenses/summary'),
-          API.get('/fees/payments')
-        ]);
-
-        if (sumRes.data.success) {
-          const s = sumRes.data.summary;
-          setStats({
-            totalRevenue: s.totalRevenue,
-            todayCollection: s.totalRevenue * 0.1, // simulated today's ratio
-            monthlyCollection: s.totalRevenue * 0.6, // simulated month's ratio
-            pendingFee: 9200, // mock pending balance
-            expenses: s.totalOutflow,
-            profit: s.netProfit
-          });
-        }
-
-        if (payRes.data.success) {
-          setRecentPayments(payRes.data.payments.slice(0, 5));
+        const res = await API.get('/dashboard/accountant');
+        if (res.data.success) {
+          setStats(res.data.stats);
+          setRecentPayments(res.data.recentPayments || []);
         }
       } catch (err) {
         console.warn('DB offline. Loading simulated finance statistics.');
@@ -90,12 +77,12 @@ const AccountantDashboard = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <DashboardCard title="Total Revenue" value={`$${stats.totalRevenue.toLocaleString()}`} icon={DollarSign} color="green" />
-        <DashboardCard title="Today's Collection" value={`$${stats.todayCollection.toLocaleString()}`} icon={Wallet} color="blue" />
-        <DashboardCard title="Monthly Collection" value={`$${stats.monthlyCollection.toLocaleString()}`} icon={TrendingUp} color="indigo" />
-        <DashboardCard title="Pending Outstanding Fee" value={`$${stats.pendingFee.toLocaleString()}`} icon={AlertTriangle} color="rose" />
-        <DashboardCard title="Total Expenditures" value={`$${stats.expenses.toLocaleString()}`} icon={Briefcase} color="rose" />
-        <DashboardCard title="Net Profit Summary" value={`$${stats.profit.toLocaleString()}`} icon={Wallet} color="green" />
+        <DashboardCard title="Total Revenue" value={`$${stats.totalRevenue.toLocaleString()}`} icon={DollarSign} color="green" onClick={() => navigate('/finance/payments')} />
+        <DashboardCard title="Today's Collection" value={`$${stats.todayCollection.toLocaleString()}`} icon={Wallet} color="blue" onClick={() => navigate('/finance/payments')} />
+        <DashboardCard title="Monthly Collection" value={`$${stats.monthlyCollection.toLocaleString()}`} icon={TrendingUp} color="indigo" onClick={() => navigate('/finance/payments')} />
+        <DashboardCard title="Pending Outstanding Fee" value={`$${stats.pendingFee.toLocaleString()}`} icon={AlertTriangle} color="rose" onClick={() => navigate('/finance/payments')} />
+        <DashboardCard title="Total Expenditures" value={`$${stats.expenses.toLocaleString()}`} icon={Briefcase} color="rose" onClick={() => navigate('/finance/expenses')} />
+        <DashboardCard title="Net Profit Summary" value={`$${stats.profit.toLocaleString()}`} icon={Wallet} color="green" onClick={() => navigate('/finance/reports')} />
       </div>
 
       {/* Performance cashflow chart */}

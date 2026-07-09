@@ -141,7 +141,15 @@ const SalaryManagement = () => {
     doc.text(`Paid Date: ${new Date(salary.paidDate).toLocaleDateString()}`, 15, 96);
     doc.text(`Method: ${salary.paymentMethod}`, 15, 102);
 
-    doc.save(`SalarySlip_${salary.salarySlipNo}.pdf`);
+    const blob = doc.output('blob');
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `SalarySlip_${salary.salarySlipNo}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
     showNotification('Salary Slip PDF downloaded successfully', 'success');
   };
 

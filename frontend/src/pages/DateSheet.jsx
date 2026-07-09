@@ -259,7 +259,7 @@ const DateSheet = () => {
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Paper Date *</label>
               <input
@@ -304,7 +304,7 @@ const DateSheet = () => {
               <Layers className="w-4 h-4 mr-1 text-slate-400" />
               <span>Marks Distribution Variables</span>
             </h5>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
                 <label className="block text-[10px] font-bold text-slate-450 uppercase mb-1">Theory Max</label>
                 <input

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DashboardCard = ({ title, value, icon: Icon, color = 'blue', subtext }) => {
+const DashboardCard = ({ title, value, icon: Icon, color = 'blue', subtext, onClick }) => {
   const colorMap = {
     blue: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800',
     green: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
@@ -13,7 +13,14 @@ const DashboardCard = ({ title, value, icon: Icon, color = 'blue', subtext }) =>
   const selectedColor = colorMap[color] || colorMap.blue;
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+    <div
+      onClick={onClick}
+      className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm transition-all duration-300 ${
+        onClick
+          ? 'cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-primary-400 dark:hover:border-primary-500'
+          : 'hover:-translate-y-1 hover:shadow-md'
+      }`}
+    >
       <div className="flex justify-between items-center">
         <div>
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{title}</p>

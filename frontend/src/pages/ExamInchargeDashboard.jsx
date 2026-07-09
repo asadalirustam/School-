@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import DashboardCard from '../components/common/DashboardCard';
 import { Award, FileText, Calendar, ShieldCheck, CheckCircle2, ChevronRight } from 'lucide-react';
@@ -16,6 +17,7 @@ import {
 } from 'recharts';
 
 const ExamInchargeDashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     upcomingExams: 0,
     completedExams: 0,
@@ -41,21 +43,10 @@ const ExamInchargeDashboard = () => {
   useEffect(() => {
     const fetchExamStats = async () => {
       try {
-        const res = await API.get('/exams');
+        const res = await API.get('/dashboard/exams');
         if (res.data.success) {
-          const list = res.data.exams;
-          setExamsList(list);
-
-          const upcoming = list.filter((e) => e.status === 'Scheduled').length;
-          const completed = list.filter((e) => e.status === 'Completed' || e.status === 'Results Published').length;
-          const published = list.filter((e) => e.status === 'Results Published').length;
-
-          setStats({
-            upcomingExams: upcoming,
-            completedExams: completed,
-            resultStatus: published,
-            pendingResults: completed - published
-          });
+          setStats(res.data.stats);
+          setExamsList(res.data.examsList || []);
         }
       } catch (err) {
         console.warn('DB offline. Loading simulated exam stats.');
@@ -86,10 +77,10 @@ const ExamInchargeDashboard = () => {
 
       {/* Stats row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <DashboardCard title="Upcoming Exams" value={stats.upcomingExams} icon={Calendar} color="blue" />
-        <DashboardCard title="Completed Exams" value={stats.completedExams} icon={CheckCircle2} color="green" />
-        <DashboardCard title="Results Published" value={stats.resultStatus} icon={ShieldCheck} color="purple" />
-        <DashboardCard title="Pending Compilation" value={stats.pendingResults} icon={FileText} color="rose" />
+        <DashboardCard title="Upcoming Exams" value={stats.upcomingExams} icon={Calendar} color="blue" onClick={() => navigate('/exams/manage')} />
+        <DashboardCard title="Completed Exams" value={stats.completedExams} icon={CheckCircle2} color="green" onClick={() => navigate('/exams/manage')} />
+        <DashboardCard title="Results Published" value={stats.resultStatus} icon={ShieldCheck} color="purple" onClick={() => navigate('/exams/results')} />
+        <DashboardCard title="Pending Compilation" value={stats.pendingResults} icon={FileText} color="rose" onClick={() => navigate('/exams/results')} />
       </div>
 
       {/* Charts & list */}
