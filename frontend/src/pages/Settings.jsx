@@ -73,7 +73,13 @@ const SettingsPage = () => {
         fetchStaffAccounts();
       }
     } catch (err) {
-      showNotification('Created staff account (Demo mode)', 'success');
+      showNotification('Created staff account (Local Mode)', 'success');
+      
+      const existingStr = localStorage.getItem('local_users') || '[]';
+      const existing = JSON.parse(existingStr);
+      existing.push({ name: regName, email: regEmail, password: regPassword, role: regRole });
+      localStorage.setItem('local_users', JSON.stringify(existing));
+
       setStaffAccounts((prev) => [
         { _id: Date.now().toString(), name: regName, email: regEmail, role: regRole, status: 'Active' },
         ...prev

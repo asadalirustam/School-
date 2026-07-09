@@ -87,7 +87,15 @@ const Login = () => {
         setIsRegister(false);
       }
     } catch (err) {
-      showNotification(err.response?.data?.message || 'Principal registration simulated (Demo Mode)', 'success');
+      showNotification('Principal registration simulated (Local Mode)', 'success');
+      
+      const existingStr = localStorage.getItem('local_users') || '[]';
+      const existing = JSON.parse(existingStr);
+      existing.push({ name: regName, email: regEmail, password: regPassword, role: 'Principal' });
+      localStorage.setItem('local_users', JSON.stringify(existing));
+
+      setEmail(regEmail);
+      setPassword(regPassword);
       setIsRegister(false);
     } finally {
       setLoading(false);
@@ -128,7 +136,7 @@ const Login = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@school.com"
-                    className="w-full bg-slate-900/60 border border-slate-700/60 rounded-xl py-3 pl-11 pr-4 text-white placeholder-slate-450 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                    className="w-full bg-slate-900/60 border border-slate-700/60 rounded-xl py-3 pl-11 pr-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                   />
                 </div>
               </div>
@@ -147,7 +155,7 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-slate-900/60 border border-slate-700/60 rounded-xl py-3 pl-11 pr-12 text-white placeholder-slate-450 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                    className="w-full bg-slate-900/60 border border-slate-700/60 rounded-xl py-3 pl-11 pr-12 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                   />
                   <button
                     type="button"
@@ -188,14 +196,14 @@ const Login = () => {
             {/* Demo Credentials Info */}
             <div className="mt-8 pt-6 border-t border-white/10 text-center">
               <p className="text-xs text-slate-400 font-semibold mb-3">Quick Demo Login (Click to Fill):</p>
-              <div className="grid grid-cols-3 gap-2 text-[10px] text-slate-350">
+              <div className="grid grid-cols-3 gap-2 text-[10px] text-slate-300">
                 <div
                   onClick={() => handleDemoClick('principal@school.com', 'principalpassword')}
                   className="bg-white/5 hover:bg-white/10 active:scale-95 border border-slate-700/40 rounded p-2 cursor-pointer transition-all"
                 >
                   <p className="font-bold text-white">Principal</p>
                   <p className="truncate">principal@school.com</p>
-                  <p className="text-slate-450">principalpassword</p>
+                  <p className="text-slate-400">principalpassword</p>
                 </div>
                 <div
                   onClick={() => handleDemoClick('exam@school.com', 'exampassword')}
@@ -203,7 +211,7 @@ const Login = () => {
                 >
                   <p className="font-bold text-white">Exam Office</p>
                   <p className="truncate">exam@school.com</p>
-                  <p className="text-slate-455">exampassword</p>
+                  <p className="text-slate-400">exampassword</p>
                 </div>
                 <div
                   onClick={() => handleDemoClick('accountant@school.com', 'accountantpassword')}
@@ -211,7 +219,7 @@ const Login = () => {
                 >
                   <p className="font-bold text-white">Accountant</p>
                   <p className="truncate">accountant@school.com</p>
-                  <p className="text-slate-455">accountantpassword</p>
+                  <p className="text-slate-400">accountantpassword</p>
                 </div>
               </div>
             </div>
