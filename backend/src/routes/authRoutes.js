@@ -4,6 +4,7 @@ const {
   login,
   register,
   getProfile,
+  updateProfile,
   changePassword,
   getUsers,
   updateUserStatus
@@ -14,6 +15,7 @@ const { authorize } = require('../middlewares/roleMiddleware');
 router.post('/login', login);
 router.post('/register', register);
 router.get('/profile', protect, getProfile);
+router.put('/profile', protect, updateProfile);
 router.put('/change-password', protect, changePassword);
 router.get('/users', protect, authorize('Principal'), getUsers);
 router.put('/users/:id/status', protect, authorize('Principal'), updateUserStatus);

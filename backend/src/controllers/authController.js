@@ -171,13 +171,58 @@ const updateUserStatus = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(444).json({ success: false, message: 'User not found' });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     user.status = user.status === 'Active' ? 'Inactive' : 'Active';
     await user.save();
 
-    res.status(200).json({ success: true, message: `User status changed to ${user.status}`, user });
+    res.status(200).json({
+      success: true,
+      message: `User status updated to ${user.status}`,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update current user profile (name, email, avatar)
+// @route   PUT /api/auth/profile
+// @access  Private
+const updateProfile = async (req, res, next) => {
+  const { name, email, avatar } = req.body;
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (name !== undefined) user.name = name;
+    if (email !== undefined) user.email = email;
+    if (avatar !== undefined) user.avatar = avatar;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        status: user.status
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -187,6 +232,7 @@ module.exports = {
   login,
   register,
   getProfile,
+  updateProfile,
   changePassword,
   getUsers,
   updateUserStatus

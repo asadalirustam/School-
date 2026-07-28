@@ -109,14 +109,20 @@ const Sidebar = () => {
       {/* User Section Quick Card */}
       <div className="p-4 border-b border-slate-800 bg-slate-950/40">
         <div className="flex items-center space-x-3">
-          <img
-            src={user.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200'}
-            alt="Avatar"
-            className="w-10 h-10 rounded-full object-cover border border-slate-700 shadow-sm"
-          />
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt="Avatar"
+              className="w-10 h-10 rounded-full object-cover border border-slate-700 shadow-sm shrink-0"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-primary-600 text-white font-bold flex items-center justify-center border border-primary-500 shadow-sm shrink-0">
+              {user?.name?.charAt(0) || 'U'}
+            </div>
+          )}
           <div className="overflow-hidden">
-            <h4 className="text-sm font-semibold text-white truncate">{user.name}</h4>
-            <span className="text-xs text-primary-400 font-medium block truncate">{user.role}</span>
+            <h4 className="text-sm font-semibold text-white truncate">{user?.name}</h4>
+            <span className="text-xs text-primary-400 font-medium block truncate">{user?.role}</span>
           </div>
         </div>
       </div>

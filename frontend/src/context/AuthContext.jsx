@@ -16,7 +16,16 @@ export const AuthProvider = ({ children }) => {
         if (token.startsWith('demo-') || token.startsWith('local-token')) {
           const role = token.replace('demo-token-', '');
           const matchedEmail = Object.keys(MOCK_USERS).find(email => MOCK_USERS[email].role === role);
-          const matched = matchedEmail ? MOCK_USERS[matchedEmail] : MOCK_USERS['principal@school.com'];
+          let matched = matchedEmail ? MOCK_USERS[matchedEmail] : MOCK_USERS['principal@school.com'];
+          if (matched?.email) {
+            const customStr = localStorage.getItem(`custom_profile_${matched.email.toLowerCase()}`);
+            if (customStr) {
+              try {
+                const custom = JSON.parse(customStr);
+                matched = { ...matched, ...custom };
+              } catch (e) {}
+            }
+          }
           setUser(matched);
           setLoading(false);
           return;
@@ -51,8 +60,15 @@ export const AuthProvider = ({ children }) => {
       console.warn('API error. Trying fallback simulation bypass.', error);
 
       // Check central mock users dictionary
-      const mockUser = MOCK_USERS[email.toLowerCase()];
+      let mockUser = MOCK_USERS[email.toLowerCase()];
       if (mockUser) {
+        const customStr = localStorage.getItem(`custom_profile_${email.toLowerCase()}`);
+        if (customStr) {
+          try {
+            const custom = JSON.parse(customStr);
+            mockUser = { ...mockUser, ...custom };
+          } catch (e) {}
+        }
         localStorage.setItem('token', 'demo-token-' + mockUser.role);
         setUser(mockUser);
         return mockUser;
@@ -85,6 +101,30 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUserProfile = async (profileData) => {
+    try {
+      const res = await API.put('/auth/profile', profileData);
+      if (res.data.success && res.data.user) {
+        setUser((prev) => ({ ...prev, ...res.data.user }));
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('API update failed. Updating in demo context mode.');
+    }
+
+    setUser((prev) => {
+      const updated = { ...prev, ...profileData };
+      if (prev?.email && MOCK_USERS[prev.email.toLowerCase()]) {
+        MOCK_USERS[prev.email.toLowerCase()] = { ...MOCK_USERS[prev.email.toLowerCase()], ...profileData };
+      }
+      if (prev?.email) {
+        localStorage.setItem(`custom_profile_${prev.email.toLowerCase()}`, JSON.stringify(profileData));
+      }
+      return updated;
+    });
+    return { success: true, message: 'Profile updated successfully' };
+  };
+
   const changeUserPassword = async (currentPassword, newPassword) => {
     try {
       const res = await API.put('/auth/change-password', { currentPassword, newPassword });
@@ -95,7 +135,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, changeUserPassword, setUser }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, changeUserPassword, updateUserProfile, setUser }}>
       {children}
     </AuthContext.Provider>
   );
