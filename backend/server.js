@@ -1,5 +1,9 @@
 const dns = require('dns');
-dns.setServers(['8.8.8.8', '8.8.4.4']);
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4']);
+} catch (err) {
+  console.warn('DNS server override ignored:', err.message);
+}
 
 const dotenv = require('dotenv');
 const connectDB = require('./src/config/db');

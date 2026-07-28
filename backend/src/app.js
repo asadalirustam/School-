@@ -35,7 +35,11 @@ app.use('/api/expenses', require('./routes/expenseRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/dashboard', require('./routes/dashboardRoutes'));
 
-// Root route
+// Root route & Health check
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'Backend health check passed' });
+});
+
 app.get('/', (req, res) => {
   res.send('School & College Management System API is running...');
 });
