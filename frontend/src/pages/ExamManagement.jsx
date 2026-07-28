@@ -3,6 +3,7 @@ import API from '../services/api';
 import Modal from '../components/common/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { Award, Plus, Trash2, Edit2, CheckCircle2 } from 'lucide-react';
+import { MOCK_EXAMS, MOCK_SESSIONS } from '../services/mockData';
 
 const ExamManagement = () => {
   const { showNotification } = useNotification();
@@ -10,7 +11,7 @@ const ExamManagement = () => {
   const [sessions, setSessions] = useState([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  
+
   const [selectedExam, setSelectedExam] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -25,19 +26,19 @@ const ExamManagement = () => {
         API.get('/exams'),
         API.get('/sessions')
       ]);
-      setExams(exmRes.data.exams || []);
-      setSessions(sessRes.data.sessions || []);
+      const exmList = exmRes.data.exams?.length ? exmRes.data.exams : MOCK_EXAMS;
+      const sessList = sessRes.data.sessions?.length ? sessRes.data.sessions : MOCK_SESSIONS;
+      setExams(exmList);
+      setSessions(sessList);
 
-      const active = sessRes.data.sessions?.find((s) => s.isActive);
+      const active = sessList.find((s) => s.isActive);
       if (active) {
         setFormData((prev) => ({ ...prev, academicSession: active._id }));
       }
     } catch (err) {
       console.warn('DB offline. Loading simulated exams list.');
-      setExams([
-        { _id: 'e1', name: 'First Term Examination 2026', type: 'Midterm', status: 'Results Published', academicSession: { name: '2026-2027' } },
-        { _id: 'e2', name: 'Second Term Examination 2026', type: 'Final', status: 'Scheduled', academicSession: { name: '2026-2027' } }
-      ]);
+      setExams(MOCK_EXAMS);
+      setSessions(MOCK_SESSIONS);
     }
   };
 

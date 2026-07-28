@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import API from '../services/api';
 import { useNotification } from '../context/NotificationContext';
 import { Award, CheckSquare, Layers, FolderOpen } from 'lucide-react';
+import { MOCK_EXAMS, MOCK_CLASSES, MOCK_SUBJECTS, MOCK_MARKS } from '../services/mockData';
 
 const MarksManagement = () => {
   const { showNotification } = useNotification();
@@ -26,10 +27,18 @@ const MarksManagement = () => {
         API.get('/exams'),
         API.get('/classes')
       ]);
-      setExams(exmRes.data.exams || []);
-      setClasses(clsRes.data.classes || []);
+      const exmList = exmRes.data.exams?.length ? exmRes.data.exams : MOCK_EXAMS;
+      const clsList = clsRes.data.classes?.length ? clsRes.data.classes : MOCK_CLASSES;
+      setExams(exmList);
+      setClasses(clsList);
+      if (exmList.length > 0 && !selectedExam) setSelectedExam(exmList[0]._id);
+      if (clsList.length > 0 && !selectedClass) setSelectedClass(clsList[0]._id);
     } catch (err) {
-      console.error('Failed to load filters:', err);
+      console.error('Failed to load filters, using mock data:', err);
+      setExams(MOCK_EXAMS);
+      setClasses(MOCK_CLASSES);
+      if (MOCK_EXAMS.length > 0 && !selectedExam) setSelectedExam(MOCK_EXAMS[0]._id);
+      if (MOCK_CLASSES.length > 0 && !selectedClass) setSelectedClass(MOCK_CLASSES[0]._id);
     }
   };
 
@@ -39,12 +48,15 @@ const MarksManagement = () => {
 
   // Fetch subjects of selected class and datesheet thresholds
   useEffect(() => {
-    if (!selectedClass) return;
     const currentClass = classes.find((c) => c._id === selectedClass);
-    if (currentClass) {
-      setSubjects(currentClass.subjects || []);
+    if (currentClass && currentClass.subjects?.length) {
+      setSubjects(currentClass.subjects);
+      setSelectedSubject(currentClass.subjects[0]._id || currentClass.subjects[0].name);
+    } else {
+      setSubjects(MOCK_SUBJECTS);
+      if (MOCK_SUBJECTS.length > 0) setSelectedSubject(MOCK_SUBJECTS[0]._id);
     }
-  }, [selectedClass]);
+  }, [selectedClass, classes]);
 
   const loadStudentMarksRegister = async () => {
     if (!selectedExam || !selectedClass || !selectedSubject) {

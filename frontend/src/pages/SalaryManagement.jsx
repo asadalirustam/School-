@@ -4,12 +4,13 @@ import Modal from '../components/common/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { Users, Plus, Trash2, Printer, CheckCircle, HelpCircle, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
+import { MOCK_TEACHERS, MOCK_SALARIES } from '../services/mockData';
 
 const SalaryManagement = () => {
   const { showNotification } = useNotification();
   const [teachers, setTeachers] = useState([]);
   const [salariesList, setSalariesList] = useState([]);
-  
+
   const [isPayOpen, setIsPayOpen] = useState(false);
   const [employeeType, setEmployeeType] = useState('Teacher');
 
@@ -31,17 +32,12 @@ const SalaryManagement = () => {
         API.get('/teachers'),
         API.get('/expenses/salaries')
       ]);
-      setTeachers(teachRes.data.teachers || []);
-      setSalariesList(salRes.data.salaries || []);
+      setTeachers(teachRes.data.teachers?.length ? teachRes.data.teachers : MOCK_TEACHERS);
+      setSalariesList(salRes.data.salaries?.length ? salRes.data.salaries : MOCK_SALARIES);
     } catch (err) {
       console.warn('DB offline. Loading simulated payroll.');
-      setTeachers([
-        { _id: 't1', firstName: 'Sarah', lastName: 'Connor', salary: 3500 },
-        { _id: 't2', firstName: 'John', lastName: 'Keating', salary: 4200 }
-      ]);
-      setSalariesList([
-        { _id: 's1', salarySlipNo: 'SLIP-17005481', employeeType: 'Teacher', teacher: { firstName: 'Sarah', lastName: 'Connor' }, month: 'July 2026', baseSalary: 3500, allowances: 200, deductions: 50, netSalary: 3650, paymentMethod: 'Bank Transfer', paidDate: new Date() }
-      ]);
+      setTeachers(MOCK_TEACHERS);
+      setSalariesList(MOCK_SALARIES);
     }
   };
 

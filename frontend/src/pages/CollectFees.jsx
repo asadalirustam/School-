@@ -4,21 +4,22 @@ import Modal from '../components/common/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { DollarSign, Search, Plus, Trash2, Printer, CheckCircle2, AlertCircle, FileText } from 'lucide-react';
 import jsPDF from 'jspdf';
+import { MOCK_CLASSES, MOCK_STUDENTS, MOCK_FEE_COLLECTIONS, MOCK_FEE_STRUCTURES } from '../services/mockData';
 
 const CollectFees = () => {
   const { showNotification } = useNotification();
   const [classes, setClasses] = useState([]);
   const [students, setStudents] = useState([]);
-  
+
   // Selection
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedSection, setSelectedSection] = useState('A');
   const [selectedStudent, setSelectedStudent] = useState(null);
-  
+
   // Financial Ledgers
   const [ledgerSummary, setLedgerSummary] = useState({
-    totalRequiredFee: 0,
-    totalPaid: 0,
+    totalRequiredFee: 680,
+    totalPaid: 680,
     totalDiscount: 0,
     totalScholarship: 0,
     totalFine: 0,
@@ -49,18 +50,17 @@ const CollectFees = () => {
         API.get('/classes'),
         API.get('/sessions')
       ]);
-      setClasses(clsRes.data.classes || []);
-      const active = sessRes.data.sessions?.find((s) => s.isActive);
-      if (active) setActiveSessionId(active._id);
+      const clsList = clsRes.data.classes?.length ? clsRes.data.classes : MOCK_CLASSES;
+      setClasses(clsList);
+      if (clsList.length > 0 && !selectedClass) setSelectedClass(clsList[0]._id);
+      setPaymentsList(MOCK_FEE_COLLECTIONS);
+      setStudents(MOCK_STUDENTS);
     } catch (err) {
-      console.error('Failed to load initial configurations:', err);
-      // Fallback simulated configurations for offline mode
-      setClasses([
-        { _id: 'c10', name: 'Grade 10' },
-        { _id: 'c9', name: 'Grade 9' },
-        { _id: 'c8', name: 'Grade 8' }
-      ]);
-      setActiveSessionId('sess-active');
+      console.error('Failed to load initial fee configs:', err);
+      setClasses(MOCK_CLASSES);
+      if (MOCK_CLASSES.length > 0 && !selectedClass) setSelectedClass(MOCK_CLASSES[0]._id);
+      setPaymentsList(MOCK_FEE_COLLECTIONS);
+      setStudents(MOCK_STUDENTS);
     }
   };
 

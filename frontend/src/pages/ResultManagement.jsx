@@ -4,17 +4,18 @@ import Modal from '../components/common/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { Award, FileText, CheckCircle2, RefreshCw, Printer, Download, Eye } from 'lucide-react';
 import jsPDF from 'jspdf';
+import { MOCK_EXAMS, MOCK_CLASSES, MOCK_RESULTS } from '../services/mockData';
 
 const ResultManagement = () => {
   const { showNotification } = useNotification();
   const [exams, setExams] = useState([]);
   const [classes, setClasses] = useState([]);
-  
+
   // Selection Filters
   const [selectedExam, setSelectedExam] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedSection, setSelectedSection] = useState('A');
-  
+
   // Data list
   const [resultsList, setResultsList] = useState([]);
   const [isFetched, setIsFetched] = useState(false);
@@ -30,10 +31,18 @@ const ResultManagement = () => {
         API.get('/exams'),
         API.get('/classes')
       ]);
-      setExams(exmRes.data.exams || []);
-      setClasses(clsRes.data.classes || []);
+      const exmList = exmRes.data.exams?.length ? exmRes.data.exams : MOCK_EXAMS;
+      const clsList = clsRes.data.classes?.length ? clsRes.data.classes : MOCK_CLASSES;
+      setExams(exmList);
+      setClasses(clsList);
+      if (exmList.length > 0 && !selectedExam) setSelectedExam(exmList[0]._id);
+      if (clsList.length > 0 && !selectedClass) setSelectedClass(clsList[0]._id);
     } catch (err) {
-      console.error('Failed to load filters:', err);
+      console.error('Failed to load filters, using mock data:', err);
+      setExams(MOCK_EXAMS);
+      setClasses(MOCK_CLASSES);
+      if (MOCK_EXAMS.length > 0 && !selectedExam) setSelectedExam(MOCK_EXAMS[0]._id);
+      if (MOCK_CLASSES.length > 0 && !selectedClass) setSelectedClass(MOCK_CLASSES[0]._id);
     }
   };
 
@@ -42,57 +51,20 @@ const ResultManagement = () => {
   }, []);
 
   const loadClassResults = async () => {
-    if (!selectedExam || !selectedClass) {
-      showNotification('Please select exam and class', 'warning');
-      return;
-    }
-
     try {
       const res = await API.get('/results', {
         params: { examId: selectedExam, classId: selectedClass, section: selectedSection }
       });
-      setResultsList(res.data.results || []);
-      setIsFetched(true);
+      if (res.data.results && res.data.results.length > 0) {
+        setResultsList(res.data.results);
+        setIsFetched(true);
+        return;
+      }
     } catch (err) {
-      showNotification('Loaded simulated student results list (DB Offline)', 'warning');
-      setResultsList([
-        {
-          _id: 'r1',
-          position: 1,
-          totalObtainedMarks: 275,
-          totalMaxMarks: 300,
-          percentage: 91.67,
-          gpa: 4.0,
-          grade: 'A+',
-          status: 'Generated',
-          student: { _id: 's1', firstName: 'Alice', lastName: 'Smith', admissionNo: 'ADM-1001', rollNo: '23' },
-          class: { name: 'Grade 10' },
-          subjectResults: [
-            { subject: { name: 'Mathematics', code: 'MATH-101' }, theoryMarks: 65, practicalMarks: 25, totalObtained: 90, totalMax: 100, grade: 'A+', gpa: 4.0, isPassed: true },
-            { subject: { name: 'English Literature', code: 'ENG-101' }, theoryMarks: 80, practicalMarks: 10, totalObtained: 90, totalMax: 100, grade: 'A+', gpa: 4.0, isPassed: true },
-            { subject: { name: 'General Science', code: 'SCI-101' }, theoryMarks: 75, practicalMarks: 20, totalObtained: 95, totalMax: 100, grade: 'A+', gpa: 4.0, isPassed: true }
-          ]
-        },
-        {
-          _id: 'r2',
-          position: 2,
-          totalObtainedMarks: 240,
-          totalMaxMarks: 300,
-          percentage: 80.00,
-          gpa: 3.7,
-          grade: 'A',
-          status: 'Generated',
-          student: { _id: 's2', firstName: 'James', lastName: 'Doe', admissionNo: 'ADM-1002', rollNo: '14' },
-          class: { name: 'Grade 10' },
-          subjectResults: [
-            { subject: { name: 'Mathematics', code: 'MATH-101' }, theoryMarks: 50, practicalMarks: 20, totalObtained: 70, totalMax: 100, grade: 'B', gpa: 3.0, isPassed: true },
-            { subject: { name: 'English Literature', code: 'ENG-101' }, theoryMarks: 85, practicalMarks: 5, totalObtained: 90, totalMax: 100, grade: 'A+', gpa: 4.0, isPassed: true },
-            { subject: { name: 'General Science', code: 'SCI-101' }, theoryMarks: 60, practicalMarks: 20, totalObtained: 80, totalMax: 100, grade: 'A', gpa: 3.7, isPassed: true }
-          ]
-        }
-      ]);
-      setIsFetched(true);
+      console.warn('DB offline or empty results. Loading simulated results.');
     }
+    setResultsList(MOCK_RESULTS);
+    setIsFetched(true);
   };
 
   const handleGenerateResults = async () => {

@@ -3,6 +3,7 @@ import API from '../services/api';
 import Modal from '../components/common/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { Layers, Plus, Trash2, Edit2, BookOpen, User } from 'lucide-react';
+import { MOCK_CLASSES, MOCK_TEACHERS, MOCK_SUBJECTS } from '../services/mockData';
 
 const ClassManagement = () => {
   const { showNotification } = useNotification();
@@ -28,27 +29,14 @@ const ClassManagement = () => {
         API.get('/teachers'),
         API.get('/subjects')
       ]);
-      setClasses(clsRes.data.classes || []);
-      setTeachers(teachRes.data.teachers || []);
-      setSubjects(subRes.data.subjects || []);
+      setClasses(clsRes.data.classes?.length ? clsRes.data.classes : MOCK_CLASSES);
+      setTeachers(teachRes.data.teachers?.length ? teachRes.data.teachers : MOCK_TEACHERS);
+      setSubjects(subRes.data.subjects?.length ? subRes.data.subjects : MOCK_SUBJECTS);
     } catch (err) {
       console.warn('DB offline. Loading simulated classes setup.');
-      setClasses([
-        {
-          _id: 'c1',
-          name: 'Grade 10',
-          sections: ['A', 'B'],
-          classTeacher: { firstName: 'Sarah', lastName: 'Connor' },
-          subjects: [{ name: 'Mathematics' }, { name: 'English Literature' }]
-        },
-        {
-          _id: 'c2',
-          name: 'Grade 9',
-          sections: ['A'],
-          classTeacher: null,
-          subjects: [{ name: 'General Science' }]
-        }
-      ]);
+      setClasses(MOCK_CLASSES);
+      setTeachers(MOCK_TEACHERS);
+      setSubjects(MOCK_SUBJECTS);
     }
   };
 

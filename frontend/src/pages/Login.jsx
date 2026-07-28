@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import API from '../services/api';
-import { Mail, Lock, LogIn, Eye, EyeOff, UserPlus, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, LogIn, Eye, EyeOff, UserPlus, ArrowLeft, ShieldCheck, GraduationCap, Users, DollarSign, BookOpen, User } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   // Principal Registration states
   const [isRegister, setIsRegister] = useState(false);
   const [regName, setRegName] = useState('');
@@ -40,7 +40,7 @@ const Login = () => {
     try {
       const user = await login(email, password);
       showNotification(`Welcome back, ${user.name}!`, 'success');
-      
+
       // Redirect based on user role
       if (user.role === 'Principal') {
         navigate('/principal');
@@ -48,6 +48,12 @@ const Login = () => {
         navigate('/exams');
       } else if (user.role === 'Accountant') {
         navigate('/finance');
+      } else if (user.role === 'Teacher') {
+        navigate('/teacher');
+      } else if (user.role === 'Student') {
+        navigate('/student');
+      } else if (user.role === 'Parent') {
+        navigate('/parent');
       }
     } catch (err) {
       showNotification(err.message || 'Invalid login credentials', 'error');
@@ -88,7 +94,7 @@ const Login = () => {
       }
     } catch (err) {
       showNotification('Principal registration simulated (Local Mode)', 'success');
-      
+
       const existingStr = localStorage.getItem('local_users') || '[]';
       const existing = JSON.parse(existingStr);
       existing.push({ name: regName, email: regEmail, password: regPassword, role: 'Principal' });
@@ -102,28 +108,37 @@ const Login = () => {
     }
   };
 
+  const demoRoles = [
+    { name: 'Principal', email: 'principal@school.com', pass: 'principalpassword', icon: ShieldCheck, color: 'border-amber-500/40 text-amber-400 hover:bg-amber-500/10' },
+    { name: 'Exam Office', email: 'exam@school.com', pass: 'exampassword', icon: BookOpen, color: 'border-purple-500/40 text-purple-400 hover:bg-purple-500/10' },
+    { name: 'Accountant', email: 'accountant@school.com', pass: 'accountantpassword', icon: DollarSign, color: 'border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10' },
+    { name: 'Teacher', email: 'teacher@school.com', pass: 'teacherpassword', icon: Users, color: 'border-indigo-500/40 text-indigo-400 hover:bg-indigo-500/10' },
+    { name: 'Student', email: 'student@school.com', pass: 'studentpassword', icon: GraduationCap, color: 'border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10' },
+    { name: 'Parent', email: 'parent@school.com', pass: 'parentpassword', icon: User, color: 'border-blue-500/40 text-blue-400 hover:bg-blue-500/10' }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white/10 dark:bg-slate-900/40 backdrop-blur-md border border-white/10 dark:border-slate-800 rounded-2xl shadow-2xl p-8 animate-scale-up">
-        
+      <div className="w-full max-w-xl bg-white/10 dark:bg-slate-900/40 backdrop-blur-md border border-white/10 dark:border-slate-800 rounded-2xl shadow-2xl p-8 animate-scale-up">
+
         {/* VIEW 1: LOGIN MODE */}
         {!isRegister ? (
           <>
             {/* Header */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <div className="w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center font-bold text-white text-3xl mx-auto shadow-lg shadow-primary-500/20 mb-3">
                 S
               </div>
               <h2 className="text-2xl font-bold text-white tracking-tight">System Login</h2>
               <p className="text-sm text-slate-300 dark:text-slate-400 mt-1">
-                School & College Management System
+                School & College Management Portal (All Roles Access)
               </p>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider mb-1.5">
                   Email Address
                 </label>
                 <div className="relative">
@@ -142,7 +157,7 @@ const Login = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider mb-1.5">
                   Password
                 </label>
                 <div className="relative">
@@ -184,7 +199,7 @@ const Login = () => {
             </form>
 
             {/* Principal registration trigger */}
-            <div className="mt-5 text-center">
+            <div className="mt-4 text-center">
               <button
                 onClick={() => setIsRegister(true)}
                 className="text-xs text-primary-400 hover:text-primary-300 font-semibold underline transition-all"
@@ -193,41 +208,30 @@ const Login = () => {
               </button>
             </div>
 
-            {/* Demo Credentials Info */}
-            <div className="mt-8 pt-6 border-t border-white/10 text-center">
-              <p className="text-xs text-slate-400 font-semibold mb-3">Quick Demo Login (Click to Fill):</p>
-              <div className="grid grid-cols-3 gap-2 text-[10px] text-slate-300">
-                <div
-                  onClick={() => handleDemoClick('principal@school.com', 'principalpassword')}
-                  className="bg-white/5 hover:bg-white/10 active:scale-95 border border-slate-700/40 rounded p-2 cursor-pointer transition-all"
-                >
-                  <p className="font-bold text-white">Principal</p>
-                  <p className="truncate">principal@school.com</p>
-                  <p className="text-slate-400">principalpassword</p>
-                </div>
-                <div
-                  onClick={() => handleDemoClick('exam@school.com', 'exampassword')}
-                  className="bg-white/5 hover:bg-white/10 active:scale-95 border border-slate-700/40 rounded p-2 cursor-pointer transition-all"
-                >
-                  <p className="font-bold text-white">Exam Office</p>
-                  <p className="truncate">exam@school.com</p>
-                  <p className="text-slate-400">exampassword</p>
-                </div>
-                <div
-                  onClick={() => handleDemoClick('accountant@school.com', 'accountantpassword')}
-                  className="bg-white/5 hover:bg-white/10 active:scale-95 border border-slate-700/40 rounded p-2 cursor-pointer transition-all"
-                >
-                  <p className="font-bold text-white">Accountant</p>
-                  <p className="truncate">accountant@school.com</p>
-                  <p className="text-slate-400">accountantpassword</p>
-                </div>
+            {/* Demo Credentials Info for ALL 6 ROLES */}
+            <div className="mt-6 pt-5 border-t border-white/10 text-center">
+              <p className="text-xs text-slate-300 font-semibold mb-3">Quick Demo Login for All 6 Roles (Click to Fill):</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-left">
+                {demoRoles.map((roleItem) => (
+                  <div
+                    key={roleItem.name}
+                    onClick={() => handleDemoClick(roleItem.email, roleItem.pass)}
+                    className={`bg-white/5 hover:bg-white/10 active:scale-95 border ${roleItem.color} rounded-xl p-2.5 cursor-pointer transition-all flex flex-col justify-between`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-white">{roleItem.name}</span>
+                      <roleItem.icon className="w-4 h-4 opacity-80" />
+                    </div>
+                    <p className="text-[10px] text-slate-300 truncate mt-1">{roleItem.email}</p>
+                    <p className="text-[9px] text-slate-400 font-mono mt-0.5">pass: {roleItem.pass}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </>
         ) : (
           /* VIEW 2: REGISTRATION MODE */
           <>
-            {/* Header */}
             <div className="text-center mb-6">
               <h2 className="text-xl font-bold text-white flex items-center justify-center">
                 <UserPlus className="w-6 h-6 mr-2 text-primary-400 shrink-0" />
@@ -238,7 +242,6 @@ const Login = () => {
               </p>
             </div>
 
-            {/* Registration Form */}
             <form onSubmit={handleRegisterSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-200 uppercase mb-1.5">

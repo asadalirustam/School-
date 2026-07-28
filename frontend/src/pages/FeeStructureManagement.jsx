@@ -3,13 +3,14 @@ import API from '../services/api';
 import Modal from '../components/common/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { Layers, Plus, Trash2, Edit2, DollarSign } from 'lucide-react';
+import { MOCK_FEE_STRUCTURES, MOCK_CLASSES, MOCK_SESSIONS } from '../services/mockData';
 
 const FeeStructureManagement = () => {
   const { showNotification } = useNotification();
   const [structures, setStructures] = useState([]);
   const [classes, setClasses] = useState([]);
   const [sessions, setSessions] = useState([]);
-  
+
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
@@ -28,9 +29,9 @@ const FeeStructureManagement = () => {
         API.get('/classes'),
         API.get('/sessions')
       ]);
-      setStructures(strRes.data.structures || []);
-      setClasses(clsRes.data.classes || []);
-      setSessions(sessRes.data.sessions || []);
+      setStructures(strRes.data.structures?.length ? strRes.data.structures : MOCK_FEE_STRUCTURES);
+      setClasses(clsRes.data.classes?.length ? clsRes.data.classes : MOCK_CLASSES);
+      setSessions(sessRes.data.sessions?.length ? sessRes.data.sessions : MOCK_SESSIONS);
 
       const activeSess = sessRes.data.sessions?.find((s) => s.isActive);
       if (activeSess) {
@@ -38,20 +39,9 @@ const FeeStructureManagement = () => {
       }
     } catch (err) {
       console.warn('DB offline. Loading simulated structures list.');
-      setStructures([
-        { _id: 's1', category: 'Tuition Fee', amount: 200, class: { name: 'Grade 10' }, academicSession: { name: '2026-2027' } },
-        { _id: 's2', category: 'Library Fee', amount: 30, class: null, academicSession: { name: '2026-2027' } }
-      ]);
-      // Fallback simulated configurations for offline mode
-      setClasses([
-        { _id: 'c10', name: 'Grade 10' },
-        { _id: 'c9', name: 'Grade 9' },
-        { _id: 'c8', name: 'Grade 8' }
-      ]);
-      setSessions([
-        { _id: 'sess-active', name: '2026-2027', isActive: true }
-      ]);
-      setFormData((prev) => ({ ...prev, academicSession: 'sess-active' }));
+      setStructures(MOCK_FEE_STRUCTURES);
+      setClasses(MOCK_CLASSES);
+      setSessions(MOCK_SESSIONS);
     }
   };
 

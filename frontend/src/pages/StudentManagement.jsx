@@ -1,8 +1,11 @@
+
+
 import React, { useState, useEffect } from 'react';
 import API from '../services/api';
 import Modal from '../components/common/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { GraduationCap, Search, Plus, Trash2, Edit2, CheckSquare, RefreshCw, Eye } from 'lucide-react';
+import { MOCK_STUDENTS, MOCK_CLASSES, MOCK_SESSIONS } from '../services/mockData';
 
 const StudentManagement = () => {
   const { showNotification } = useNotification();
@@ -54,11 +57,12 @@ const StudentManagement = () => {
         API.get('/classes'),
         API.get('/sessions')
       ]);
-      setClasses(classRes.data.classes || []);
-      setSessions(sessRes.data.sessions || []);
+      const clsList = classRes.data.classes?.length ? classRes.data.classes : MOCK_CLASSES;
+      const sessList = sessRes.data.sessions?.length ? sessRes.data.sessions : MOCK_SESSIONS;
+      setClasses(clsList);
+      setSessions(sessList);
 
-      // Set default session in form if available
-      const activeSess = sessRes.data.sessions?.find((s) => s.isActive);
+      const activeSess = sessList.find((s) => s.isActive);
       if (activeSess) {
         setFormData((prev) => ({
           ...prev,
@@ -66,7 +70,9 @@ const StudentManagement = () => {
         }));
       }
     } catch (err) {
-      console.error('Failed to load initial configurations:', err);
+      console.error('Failed to load initial configurations, using mock data:', err);
+      setClasses(MOCK_CLASSES);
+      setSessions(MOCK_SESSIONS);
     }
   };
 
@@ -81,44 +87,20 @@ const StudentManagement = () => {
           limit: 8
         }
       });
-      setStudents(res.data.students || []);
-      setTotalPages(res.data.pages || 1);
-      setTotalStudents(res.data.total || 0);
+      if (res.data.students && res.data.students.length > 0) {
+        setStudents(res.data.students);
+        setTotalPages(res.data.pages || 1);
+        setTotalStudents(res.data.total || res.data.students.length);
+      } else {
+        setStudents(MOCK_STUDENTS);
+        setTotalPages(1);
+        setTotalStudents(MOCK_STUDENTS.length);
+      }
     } catch (err) {
       console.warn('Failed to load students. Using simulated student records.');
-      // Create mock student data if DB offline
-      setStudents([
-        {
-          _id: 'mock1',
-          admissionNo: 'ADM-1001',
-          rollNo: '23',
-          firstName: 'Alice',
-          lastName: 'Smith',
-          dob: '2012-05-15',
-          gender: 'Female',
-          class: { _id: 'c1', name: 'Grade 10' },
-          section: 'A',
-          parentName: 'Robert Smith',
-          parentPhone: '555-0199',
-          parentEmail: 'robert@email.com',
-          status: 'Active'
-        },
-        {
-          _id: 'mock2',
-          admissionNo: 'ADM-1002',
-          rollNo: '14',
-          firstName: 'James',
-          lastName: 'Doe',
-          dob: '2013-09-21',
-          gender: 'Male',
-          class: { _id: 'c1', name: 'Grade 10' },
-          section: 'B',
-          parentName: 'John Doe',
-          parentPhone: '555-0211',
-          parentEmail: 'john@email.com',
-          status: 'Active'
-        }
-      ]);
+      setStudents(MOCK_STUDENTS);
+      setTotalPages(1);
+      setTotalStudents(MOCK_STUDENTS.length);
     }
   };
 

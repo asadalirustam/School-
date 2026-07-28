@@ -3,17 +3,18 @@ import API from '../services/api';
 import Modal from '../components/common/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { Users, Search, Plus, Trash2, Edit2, Book, CheckSquare } from 'lucide-react';
+import { MOCK_TEACHERS, MOCK_CLASSES, MOCK_SUBJECTS } from '../services/mockData';
 
 const TeacherManagement = () => {
   const { showNotification } = useNotification();
   const [teachers, setTeachers] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [classes, setClasses] = useState([]);
-  
+
   const [search, setSearch] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  
+
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -34,47 +35,26 @@ const TeacherManagement = () => {
         API.get('/subjects'),
         API.get('/classes')
       ]);
-      setSubjects(subRes.data.subjects || []);
-      setClasses(clsRes.data.classes || []);
+      setSubjects(subRes.data.subjects?.length ? subRes.data.subjects : MOCK_SUBJECTS);
+      setClasses(clsRes.data.classes?.length ? clsRes.data.classes : MOCK_CLASSES);
     } catch (err) {
       console.error('Failed to load classes and subjects:', err);
+      setSubjects(MOCK_SUBJECTS);
+      setClasses(MOCK_CLASSES);
     }
   };
 
   const fetchTeachers = async () => {
     try {
       const res = await API.get('/teachers');
-      setTeachers(res.data.teachers || []);
+      if (res.data.teachers && res.data.teachers.length > 0) {
+        setTeachers(res.data.teachers);
+      } else {
+        setTeachers(MOCK_TEACHERS);
+      }
     } catch (err) {
       console.warn('Failed to load teachers. Using simulated teacher records.');
-      setTeachers([
-        {
-          _id: 't1',
-          firstName: 'Sarah',
-          lastName: 'Connor',
-          email: 'sarah@school.com',
-          phone: '555-0100',
-          qualification: 'M.Sc. Mathematics',
-          experience: 8,
-          salary: 3500,
-          status: 'Active',
-          assignedSubjects: [{ name: 'Mathematics', code: 'MATH-101' }],
-          assignedClasses: [{ name: 'Grade 10' }]
-        },
-        {
-          _id: 't2',
-          firstName: 'John',
-          lastName: 'Keating',
-          email: 'john.k@school.com',
-          phone: '555-0144',
-          qualification: 'Ph.D. Literature',
-          experience: 12,
-          salary: 4200,
-          status: 'Active',
-          assignedSubjects: [],
-          assignedClasses: []
-        }
-      ]);
+      setTeachers(MOCK_TEACHERS);
     }
   };
 

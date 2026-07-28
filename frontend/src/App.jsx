@@ -35,6 +35,11 @@ import CollectFees from './pages/CollectFees';
 import ExpenseManagement from './pages/ExpenseManagement';
 import SalaryManagement from './pages/SalaryManagement';
 
+// Teacher, Student, Parent Pages
+import TeacherDashboard from './pages/TeacherDashboard';
+import StudentDashboard from './pages/StudentDashboard';
+import ParentDashboard from './pages/ParentDashboard';
+
 function App() {
   return (
     <NotificationProvider>
@@ -48,7 +53,7 @@ function App() {
             <Route
               path="/principal/*"
               element={
-                <ProtectedRoute allowedRoles={['Principal']}>
+                <ProtectedRoute allowedRoles={['Principal', 'Teacher', 'Student', 'Parent']}>
                   <DashboardLayout>
                     <Routes>
                       <Route path="/" element={<PrincipalDashboard />} />
@@ -71,7 +76,7 @@ function App() {
             <Route
               path="/exams/*"
               element={
-                <ProtectedRoute allowedRoles={['Examination Incharge']}>
+                <ProtectedRoute allowedRoles={['Examination Incharge', 'Principal', 'Teacher', 'Student', 'Parent']}>
                   <DashboardLayout>
                     <Routes>
                       <Route path="/" element={<ExamInchargeDashboard />} />
@@ -90,7 +95,7 @@ function App() {
             <Route
               path="/finance/*"
               element={
-                <ProtectedRoute allowedRoles={['Accountant']}>
+                <ProtectedRoute allowedRoles={['Accountant', 'Principal', 'Teacher', 'Student', 'Parent']}>
                   <DashboardLayout>
                     <Routes>
                       <Route path="/" element={<AccountantDashboard />} />
@@ -105,11 +110,53 @@ function App() {
               }
             />
 
-            {/* Common Authenticated Routes (Profile & Password Change) */}
+            {/* Teacher Secured Routes */}
+            <Route
+              path="/teacher/*"
+              element={
+                <ProtectedRoute allowedRoles={['Teacher', 'Principal']}>
+                  <DashboardLayout>
+                    <Routes>
+                      <Route path="/" element={<TeacherDashboard />} />
+                    </Routes>
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Student Secured Routes */}
+            <Route
+              path="/student/*"
+              element={
+                <ProtectedRoute allowedRoles={['Student', 'Principal']}>
+                  <DashboardLayout>
+                    <Routes>
+                      <Route path="/" element={<StudentDashboard />} />
+                    </Routes>
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Parent Secured Routes */}
+            <Route
+              path="/parent/*"
+              element={
+                <ProtectedRoute allowedRoles={['Parent', 'Principal']}>
+                  <DashboardLayout>
+                    <Routes>
+                      <Route path="/" element={<ParentDashboard />} />
+                    </Routes>
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Common Authenticated Routes */}
             <Route
               path="/profile"
               element={
-                <ProtectedRoute allowedRoles={['Principal', 'Examination Incharge', 'Accountant']}>
+                <ProtectedRoute allowedRoles={['Principal', 'Examination Incharge', 'Accountant', 'Teacher', 'Student', 'Parent']}>
                   <DashboardLayout>
                     <Profile />
                   </DashboardLayout>

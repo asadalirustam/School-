@@ -17,7 +17,9 @@ import {
   Award,
   FileSpreadsheet,
   LogOut,
-  User
+  User,
+  Clock,
+  CreditCard
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -31,7 +33,7 @@ const Sidebar = () => {
     navigate('/login');
   };
 
-  // Define sidebar items based on roles
+  // Define sidebar items based on all 6 roles
   const principalItems = [
     { name: 'Dashboard', path: '/principal', icon: LayoutDashboard },
     { name: 'Students', path: '/principal/students', icon: GraduationCap },
@@ -41,7 +43,6 @@ const Sidebar = () => {
     { name: 'Academic Session', path: '/principal/sessions', icon: Calendar },
     { name: 'Timetable', path: '/principal/timetable', icon: FileSpreadsheet },
     { name: 'Attendance', path: '/principal/attendance', icon: CheckSquare },
-    { name: 'Notifications', path: '/principal/notices', icon: Bell },
     { name: 'Reports', path: '/principal/reports', icon: FileBarChart2 },
     { name: 'Settings', path: '/principal/settings', icon: Settings }
   ];
@@ -64,10 +65,36 @@ const Sidebar = () => {
     { name: 'Financial Reports', path: '/finance/reports', icon: FileBarChart2 }
   ];
 
+  const teacherItems = [
+    { name: 'Dashboard', path: '/teacher', icon: LayoutDashboard },
+    { name: 'Students List', path: '/principal/students', icon: GraduationCap },
+    { name: 'Mark Attendance', path: '/principal/attendance', icon: CheckSquare },
+    { name: 'Classes & Timetable', path: '/principal/timetable', icon: Clock },
+    { name: 'Grade Upload', path: '/exams/marks', icon: Award }
+  ];
+
+  const studentItems = [
+    { name: 'Dashboard', path: '/student', icon: LayoutDashboard },
+    { name: 'My Subjects', path: '/principal/subjects', icon: BookOpen },
+    { name: 'Timetable', path: '/principal/timetable', icon: Clock },
+    { name: 'Date Sheets', path: '/exams/date-sheets', icon: Calendar },
+    { name: 'My Fee Receipts', path: '/finance/payments', icon: CreditCard }
+  ];
+
+  const parentItems = [
+    { name: 'Dashboard', path: '/parent', icon: LayoutDashboard },
+    { name: 'Children Progress', path: '/principal/students', icon: GraduationCap },
+    { name: 'Fee Invoices', path: '/finance/payments', icon: DollarSign },
+    { name: 'Exam Reports', path: '/exams/results', icon: FileBarChart2 }
+  ];
+
   let items = [];
   if (user.role === 'Principal') items = principalItems;
   else if (user.role === 'Examination Incharge') items = examItems;
   else if (user.role === 'Accountant') items = accountantItems;
+  else if (user.role === 'Teacher') items = teacherItems;
+  else if (user.role === 'Student') items = studentItems;
+  else if (user.role === 'Parent') items = parentItems;
 
   return (
     <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col min-h-screen border-r border-slate-800 transition-all duration-300">
@@ -82,12 +109,14 @@ const Sidebar = () => {
       {/* User Section Quick Card */}
       <div className="p-4 border-b border-slate-800 bg-slate-950/40">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-primary-400 font-bold border border-slate-700">
-            {user.name.charAt(0)}
-          </div>
+          <img
+            src={user.avatar || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200'}
+            alt="Avatar"
+            className="w-10 h-10 rounded-full object-cover border border-slate-700 shadow-sm"
+          />
           <div className="overflow-hidden">
             <h4 className="text-sm font-semibold text-white truncate">{user.name}</h4>
-            <span className="text-xs text-slate-500 font-medium block truncate">{user.role}</span>
+            <span className="text-xs text-primary-400 font-medium block truncate">{user.role}</span>
           </div>
         </div>
       </div>
@@ -98,7 +127,7 @@ const Sidebar = () => {
           <NavLink
             key={item.name}
             to={item.path}
-            end={item.path === '/principal' || item.path === '/exams' || item.path === '/finance'}
+            end={item.path === '/principal' || item.path === '/exams' || item.path === '/finance' || item.path === '/teacher' || item.path === '/student' || item.path === '/parent'}
             className={({ isActive }) =>
               `flex items-center px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
                 isActive

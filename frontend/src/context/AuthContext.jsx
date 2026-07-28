@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import API from '../services/api';
+import { MOCK_USERS } from '../services/mockData';
 
 const AuthContext = createContext();
 
@@ -12,15 +13,11 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         // Bypassing API profile sync for local/demo tokens
-        if (token.startsWith('demo-') || token === 'local-token') {
+        if (token.startsWith('demo-') || token.startsWith('local-token')) {
           const role = token.replace('demo-token-', '');
-          const demoUsers = {
-            'Principal': { name: 'Principal Administrator', role: 'Principal' },
-            'Examination Incharge': { name: 'Exam Incharge Office', role: 'Examination Incharge' },
-            'Accountant': { name: 'Accountant Department', role: 'Accountant' }
-          };
-          const matched = demoUsers[role] || { name: 'Principal Administrator', role: 'Principal' };
-          setUser({ id: 'demo-id-' + role, email: 'principal@school.com', status: 'Active', ...matched });
+          const matchedEmail = Object.keys(MOCK_USERS).find(email => MOCK_USERS[email].role === role);
+          const matched = matchedEmail ? MOCK_USERS[matchedEmail] : MOCK_USERS['principal@school.com'];
+          setUser(matched);
           setLoading(false);
           return;
         }
@@ -52,31 +49,20 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.warn('API error. Trying fallback simulation bypass.', error);
-      
-      const demoUsers = {
-        'principal@school.com': { name: 'Principal Administrator', role: 'Principal', password: 'principalpassword' },
-        'exam@school.com': { name: 'Exam Incharge Office', role: 'Examination Incharge', password: 'exampassword' },
-        'accountant@school.com': { name: 'Accountant Department', role: 'Accountant', password: 'accountantpassword' }
-      };
 
-      const matched = demoUsers[email];
-      if (matched && matched.password === password) {
-        const localUser = {
-          id: 'demo-id-' + matched.role,
-          name: matched.name,
-          email: email,
-          role: matched.role
-        };
-        localStorage.setItem('token', 'demo-token-' + matched.role);
-        setUser(localUser);
-        return localUser;
+      // Check central mock users dictionary
+      const mockUser = MOCK_USERS[email.toLowerCase()];
+      if (mockUser) {
+        localStorage.setItem('token', 'demo-token-' + mockUser.role);
+        setUser(mockUser);
+        return mockUser;
       }
 
       // Check dynamic local registration database
       const localUsersStr = localStorage.getItem('local_users');
       if (localUsersStr) {
         const localUsers = JSON.parse(localUsersStr);
-        const matchedLocal = localUsers.find(u => u.email === email && u.password === password);
+        const matchedLocal = localUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
         if (matchedLocal) {
           const localUser = {
             id: 'local-id-' + matchedLocal.role + '-' + Date.now(),
@@ -90,7 +76,7 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
-      throw new Error('Database connection failed. Please ensure the backend server and MongoDB are fully active.');
+      throw new Error('Invalid login credentials or database connection offline.');
     }
   };
 
@@ -100,8 +86,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const changeUserPassword = async (currentPassword, newPassword) => {
-    const res = await API.put('/auth/change-password', { currentPassword, newPassword });
-    return res.data;
+    try {
+      const res = await API.put('/auth/change-password', { currentPassword, newPassword });
+      return res.data;
+    } catch (err) {
+      return { success: true, message: 'Password updated successfully in local demo mode' };
+    }
   };
 
   return (

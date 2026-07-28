@@ -3,13 +3,14 @@ import API from '../services/api';
 import Modal from '../components/common/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { CalendarRange, Plus, Trash2, Edit2, Clock, MapPin } from 'lucide-react';
+import { MOCK_CLASSES, MOCK_TEACHERS, MOCK_SUBJECTS, MOCK_TIMETABLE } from '../services/mockData';
 
 const Timetable = () => {
   const { showNotification } = useNotification();
   const [classes, setClasses] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  
+
   // Selection
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedSection, setSelectedSection] = useState('A');
@@ -19,7 +20,7 @@ const Timetable = () => {
   // Modals
   const [isAddSlotOpen, setIsAddSlotOpen] = useState(false);
   const [activeDay, setActiveDay] = useState('Monday');
-  
+
   // Slot Form
   const [slotForm, setSlotForm] = useState({
     subject: '',
@@ -36,49 +37,54 @@ const Timetable = () => {
         API.get('/teachers'),
         API.get('/subjects')
       ]);
-      setClasses(clsRes.data.classes || []);
-      setTeachers(teachRes.data.teachers || []);
-      setSubjects(subRes.data.subjects || []);
+      const clsList = clsRes.data.classes?.length ? clsRes.data.classes : MOCK_CLASSES;
+      const teachList = teachRes.data.teachers?.length ? teachRes.data.teachers : MOCK_TEACHERS;
+      const subList = subRes.data.subjects?.length ? subRes.data.subjects : MOCK_SUBJECTS;
+      setClasses(clsList);
+      setTeachers(teachList);
+      setSubjects(subList);
+      if (clsList.length > 0 && !selectedClass) {
+        setSelectedClass(clsList[0]._id);
+      }
     } catch (err) {
-      console.error('Failed to fetch filter configs:', err);
+      console.error('Failed to fetch filter configs, using mock fallback:', err);
+      setClasses(MOCK_CLASSES);
+      setTeachers(MOCK_TEACHERS);
+      setSubjects(MOCK_SUBJECTS);
+      if (MOCK_CLASSES.length > 0 && !selectedClass) {
+        setSelectedClass(MOCK_CLASSES[0]._id);
+      }
     }
   };
 
   const fetchTimetable = async () => {
-    if (!selectedClass || !selectedSection) return;
     try {
       const res = await API.get('/timetable', {
         params: { classId: selectedClass, section: selectedSection }
       });
-      setTimetableData(res.data.timetable || []);
+      if (res.data.timetable && res.data.timetable.length > 0) {
+        setTimetableData(res.data.timetable);
+        return;
+      }
     } catch (err) {
-      console.warn('DB offline. Loading simulated timetable.');
-      // Mock timetable slots
-      setTimetableData([
-        {
-          _id: 't1',
-          day: 'Monday',
-          slots: [
-            {
-              _id: 's1',
-              startTime: '08:30',
-              endTime: '09:15',
-              room: 'Room 101',
-              subject: { name: 'Mathematics', code: 'MATH-101' },
-              teacher: { firstName: 'Sarah', lastName: 'Connor' }
-            },
-            {
-              _id: 's2',
-              startTime: '09:15',
-              endTime: '10:00',
-              room: 'Lab B',
-              subject: { name: 'General Science', code: 'SCI-101' },
-              teacher: { firstName: 'John', lastName: 'Keating' }
-            }
-          ]
-        }
-      ]);
+      console.warn('DB offline or timetable empty. Loading simulated timetable.');
     }
+
+    // Default rich fallback timetable slots
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const mockGrouped = days.map(d => ({
+      _id: 't-' + d,
+      day: d,
+      slots: MOCK_TIMETABLE.filter(m => m.day === d).map((m, idx) => ({
+        _id: 'slot-' + d + '-' + idx,
+        startTime: m.period.includes('08:30') ? '08:30' : '09:15',
+        endTime: m.period.includes('08:30') ? '09:15' : '10:00',
+        room: m.room,
+        subject: { name: m.subject, code: m.subject.substring(0, 4).toUpperCase() + '-101' },
+        teacher: { firstName: m.teacher.split(' ')[1] || 'Alan', lastName: m.teacher.split(' ')[2] || 'Grant' }
+      }))
+    }));
+    setTimetableData(mockGrouped);
   };
 
   useEffect(() => {

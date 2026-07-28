@@ -3,12 +3,13 @@ import API from '../services/api';
 import Modal from '../components/common/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { CalendarDays, Plus, Trash2, Clock, MapPin, Layers } from 'lucide-react';
+import { MOCK_EXAMS, MOCK_SUBJECTS, MOCK_DATESHEETS } from '../services/mockData';
 
 const DateSheet = () => {
   const { showNotification } = useNotification();
   const [exams, setExams] = useState([]);
   const [subjects, setSubjects] = useState([]);
-  
+
   const [selectedExam, setSelectedExam] = useState('');
   const [dateSheets, setDateSheets] = useState([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -31,34 +32,36 @@ const DateSheet = () => {
         API.get('/exams'),
         API.get('/subjects')
       ]);
-      setExams(exmRes.data.exams || []);
-      setSubjects(subRes.data.subjects || []);
+      const exmList = exmRes.data.exams?.length ? exmRes.data.exams : MOCK_EXAMS;
+      const subList = subRes.data.subjects?.length ? subRes.data.subjects : MOCK_SUBJECTS;
+      setExams(exmList);
+      setSubjects(subList);
+      if (exmList.length > 0 && !selectedExam) {
+        setSelectedExam(exmList[0]._id);
+      }
     } catch (err) {
-      console.error('Failed to load exams/subjects list:', err);
+      console.error('Failed to load exams/subjects list, using mock data:', err);
+      setExams(MOCK_EXAMS);
+      setSubjects(MOCK_SUBJECTS);
+      if (MOCK_EXAMS.length > 0 && !selectedExam) {
+        setSelectedExam(MOCK_EXAMS[0]._id);
+      }
     }
   };
 
   const loadDateSheets = async () => {
-    if (!selectedExam) return;
     try {
-      const res = await API.get(`/exams/${selectedExam}`);
-      setDateSheets(res.data.exam?.dateSheets || []);
-    } catch (err) {
-      console.warn('DB offline. Loading simulated datesheets.');
-      setDateSheets([
-        {
-          _id: 'd1',
-          date: '2026-07-20',
-          time: '09:00 AM - 12:00 PM',
-          hall: 'Main Hall A',
-          totalMarks: 100,
-          passingMarks: 40,
-          theoryMarksMax: 80,
-          practicalMarksMax: 20,
-          subject: { name: 'Mathematics', code: 'MATH-101' }
+      if (selectedExam) {
+        const res = await API.get(`/exams/${selectedExam}`);
+        if (res.data.exam?.dateSheets && res.data.exam.dateSheets.length > 0) {
+          setDateSheets(res.data.exam.dateSheets);
+          return;
         }
-      ]);
+      }
+    } catch (err) {
+      console.warn('DB offline or datesheets empty. Loading simulated datesheets.');
     }
+    setDateSheets(MOCK_DATESHEETS);
   };
 
   useEffect(() => {

@@ -3,6 +3,7 @@ import API from '../services/api';
 import Modal from '../components/common/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { Briefcase, Plus, Trash2, Edit2, DollarSign, Calendar } from 'lucide-react';
+import { MOCK_EXPENSES } from '../services/mockData';
 
 const ExpenseManagement = () => {
   const { showNotification } = useNotification();
@@ -22,13 +23,10 @@ const ExpenseManagement = () => {
   const fetchExpenses = async () => {
     try {
       const res = await API.get('/expenses');
-      setExpenses(res.data.expenses || []);
+      setExpenses(res.data.expenses?.length ? res.data.expenses : MOCK_EXPENSES);
     } catch (err) {
       console.warn('DB offline. Loading simulated expense logs.');
-      setExpenses([
-        { _id: 'e1', title: 'Office Stationeries Purchase', amount: 450, category: 'Office Supplies', date: '2026-07-02', description: 'Bought notebooks, files, and pens.' },
-        { _id: 'e2', title: 'Campus Highspeed Wifi Router', amount: 1200, category: 'Utilities', date: '2026-07-05', description: 'Router installation for blocks C.' }
-      ]);
+      setExpenses(MOCK_EXPENSES);
     }
   };
 

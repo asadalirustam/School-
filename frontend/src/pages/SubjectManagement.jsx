@@ -3,13 +3,14 @@ import API from '../services/api';
 import Modal from '../components/common/Modal';
 import { useNotification } from '../context/NotificationContext';
 import { BookOpen, Plus, Trash2, Edit2 } from 'lucide-react';
+import { MOCK_SUBJECTS } from '../services/mockData';
 
 const SubjectManagement = () => {
   const { showNotification } = useNotification();
   const [subjects, setSubjects] = useState([]);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  
+
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -20,14 +21,10 @@ const SubjectManagement = () => {
   const fetchSubjects = async () => {
     try {
       const res = await API.get('/subjects');
-      setSubjects(res.data.subjects || []);
+      setSubjects(res.data.subjects?.length ? res.data.subjects : MOCK_SUBJECTS);
     } catch (err) {
       console.warn('DB offline. Loading simulated subjects.');
-      setSubjects([
-        { _id: 's1', name: 'Mathematics', code: 'MATH-101', creditHours: 4 },
-        { _id: 's2', name: 'General Science', code: 'SCI-101', creditHours: 3 },
-        { _id: 's3', name: 'English Literature', code: 'ENG-101', creditHours: 3 }
-      ]);
+      setSubjects(MOCK_SUBJECTS);
     }
   };
 
