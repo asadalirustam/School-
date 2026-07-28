@@ -262,8 +262,6 @@ const Attendance = () => {
               <input
                 type="date"
                 value={endDate}
-                onChange={(e) => setPage(e.target.value)} // Wait, setEndDate!
-                // Ah, let's make sure it calls setEndDate, not setPage!
                 onChange={(e) => setEndDate(e.target.value)}
                 className="bg-slate-50 dark:bg-slate-950/20 border border-slate-200 dark:border-slate-800 rounded-xl py-1.5 px-3 text-xs focus:outline-none"
               />
