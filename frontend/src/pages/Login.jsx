@@ -118,19 +118,19 @@ const Login = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-xl bg-white/10 dark:bg-slate-900/40 backdrop-blur-md border border-white/10 dark:border-slate-800 rounded-2xl shadow-2xl p-8 animate-scale-up">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 flex items-center justify-center p-3 sm:p-6">
+      <div className="w-full max-w-xl bg-white/10 dark:bg-slate-900/40 backdrop-blur-md border border-white/10 dark:border-slate-800 rounded-2xl shadow-2xl p-5 sm:p-8 animate-scale-up">
 
         {/* VIEW 1: LOGIN MODE */}
         {!isRegister ? (
           <>
             {/* Header */}
             <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center font-bold text-white text-3xl mx-auto shadow-lg shadow-primary-500/20 mb-3">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-primary-600 rounded-2xl flex items-center justify-center font-bold text-white text-2xl sm:text-3xl mx-auto shadow-lg shadow-primary-500/20 mb-3">
                 S
               </div>
-              <h2 className="text-2xl font-bold text-white tracking-tight">System Login</h2>
-              <p className="text-sm text-slate-300 dark:text-slate-400 mt-1">
+              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">System Login</h2>
+              <p className="text-xs sm:text-sm text-slate-300 dark:text-slate-400 mt-1">
                 School & College Management Portal (All Roles Access)
               </p>
             </div>
@@ -219,8 +219,8 @@ const Login = () => {
                     className={`bg-white/5 hover:bg-white/10 active:scale-95 border ${roleItem.color} rounded-xl p-2.5 cursor-pointer transition-all flex flex-col justify-between`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs text-white">{roleItem.name}</span>
-                      <roleItem.icon className="w-4 h-4 opacity-80" />
+                      <span className="font-bold text-xs text-white truncate mr-1">{roleItem.name}</span>
+                      <roleItem.icon className="w-4 h-4 opacity-80 shrink-0" />
                     </div>
                     <p className="text-[10px] text-slate-300 truncate mt-1">{roleItem.email}</p>
                     <p className="text-[9px] text-slate-400 font-mono mt-0.5">pass: {roleItem.pass}</p>
@@ -229,6 +229,7 @@ const Login = () => {
               </div>
             </div>
           </>
+
         ) : (
           /* VIEW 2: REGISTRATION MODE */
           <>

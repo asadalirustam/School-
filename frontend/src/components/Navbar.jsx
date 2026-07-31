@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import API from '../services/api';
 import { Sun, Moon, Bell, Menu, Calendar } from 'lucide-react';
 
-const Navbar = () => {
+const Navbar = ({ onToggleMobileMenu }) => {
   const { user } = useAuth();
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem('theme') === 'dark' ||
@@ -20,7 +20,6 @@ const Navbar = () => {
       localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'dark'); // Actually let's set it to 'light' for correct override
       localStorage.setItem('theme', 'light');
     }
   }, [darkMode]);
@@ -53,21 +52,34 @@ const Navbar = () => {
   }, [user]);
 
   return (
-    <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 transition-colors duration-200">
-      {/* Session Information */}
-      <div className="flex items-center space-x-3">
-        <Calendar className="w-5 h-5 text-primary-500" />
-        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-          Academic Year: <span className="text-primary-600 dark:text-primary-400 font-bold">{activeSession}</span>
-        </span>
+    <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-3 sm:px-6 transition-colors duration-200 shrink-0">
+      {/* Mobile Menu Hamburger + Session Information */}
+      <div className="flex items-center space-x-2 sm:space-x-3">
+        {/* Mobile Hamburger Drawer Button */}
+        <button
+          onClick={onToggleMobileMenu}
+          className="lg:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title="Open Menu"
+          aria-label="Toggle navigation menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center space-x-2">
+          <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary-500 shrink-0" />
+          <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 truncate">
+            <span className="hidden sm:inline">Academic Year: </span>
+            <span className="text-primary-600 dark:text-primary-400 font-bold">{activeSession}</span>
+          </span>
+        </div>
       </div>
 
       {/* Control Actions */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2 sm:space-x-4">
         {/* Dark Mode Toggle */}
         <button
           onClick={() => setDarkMode(!darkMode)}
-          className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-850/60 transition-colors duration-200"
+          className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200"
           title="Toggle Dark Mode"
         >
           {darkMode ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5" />}
@@ -77,7 +89,7 @@ const Navbar = () => {
         <div className="relative">
           <button
             onClick={() => setShowNotifDropdown(!showNotifDropdown)}
-            className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-850/60 transition-colors duration-200 relative"
+            className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-200 relative"
           >
             <Bell className="w-5 h-5" />
             {notifications.length > 0 && (
@@ -86,7 +98,7 @@ const Navbar = () => {
           </button>
 
           {showNotifDropdown && (
-            <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl py-2 z-50 animate-fade-in max-h-96 overflow-y-auto">
+            <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl py-2 z-50 animate-fade-in max-h-96 overflow-y-auto">
               <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/10">
                 <h5 className="font-semibold text-sm text-slate-800 dark:text-white">Bulletins & Notices</h5>
                 <span className="text-xs text-primary-500 font-medium">{notifications.length} total</span>
@@ -122,9 +134,9 @@ const Navbar = () => {
         </div>
 
         {/* User Info Capsule */}
-        <div className="flex items-center space-x-2 border-l border-slate-200 dark:border-slate-750 pl-4 h-6">
-          <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{user?.name}</span>
-          <span className="text-[10px] uppercase font-bold bg-primary-100 dark:bg-primary-950 text-primary-600 dark:text-primary-400 px-2 py-0.5 rounded">
+        <div className="flex items-center space-x-2 border-l border-slate-200 dark:border-slate-750 pl-2 sm:pl-4 h-6">
+          <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 max-w-[90px] sm:max-w-[140px] truncate">{user?.name}</span>
+          <span className="hidden sm:inline-block text-[10px] uppercase font-bold bg-primary-100 dark:bg-primary-950 text-primary-600 dark:text-primary-400 px-2 py-0.5 rounded">
             {user?.role === 'Examination Incharge' ? 'Exam Office' : user?.role}
           </span>
         </div>
@@ -134,3 +146,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
